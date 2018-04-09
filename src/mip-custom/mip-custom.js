@@ -307,7 +307,7 @@ define(function () {
             }, 1));
             // 性能日志：按照流量 1/500 发送日志
             var random500 = Math.random() * 500;
-            if(random500 < 1) {
+            if (random500 < 1) {
                 log.sendLog(performanceData.host, performanceData.params);
             }
         }, function (error) {
