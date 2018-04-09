@@ -119,10 +119,7 @@ define(function (require) {
         addPaths: addPaths,
         subStr: getSubString,
         logData: logData,
-<<<<<<< HEAD
-=======
         performanceData: performanceData,
->>>>>>> 61216ea9d0d03b661adc2d746e1911d025f03e60
         getHashData: getHashData
     };
 
