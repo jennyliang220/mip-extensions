@@ -51,7 +51,17 @@ define(function (require) {
             en: 'mip_async_err'
         }
     };
-
+    var performanceData = {
+        host: 'https://sp1.baidu.com/5b1ZeDe5KgQFm2e88IuM_a/mwb2.gif',
+        params: {
+            pid: '1_4',
+            type: 'pf_comm',
+            lid: getHashData('lid'),
+            info: {},
+            group: 'common',
+            ts: new Date() - 0
+        }
+    };
     var config = {
         domain: 'https://mipengine.baidu.com/',
         paths: {
@@ -109,6 +119,10 @@ define(function (require) {
         addPaths: addPaths,
         subStr: getSubString,
         logData: logData,
+<<<<<<< HEAD
+=======
+        performanceData: performanceData,
+>>>>>>> 61216ea9d0d03b661adc2d746e1911d025f03e60
         getHashData: getHashData
     };
 
