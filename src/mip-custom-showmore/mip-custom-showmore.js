@@ -9,20 +9,20 @@ define(function (require) {
     var viewport = require('viewport');
     var timeoutArray = [];
     var staticOpt = {
-    	bottomShadowClass: 'mip-custom-showmore-gradient',
-    	btnClassWhenUnfold: 'mip-custom-showmore-btn-unfold'
-    }
+        bottomShadowClass: 'mip-custom-showmore-gradient',
+        btnClassWhenUnfold: 'mip-custom-showmore-btn-unfold'
+    };
 
     /**
      * 构造元素，只会运行一次
      */
     showmoreEle.prototype.build = function () {
-    	var me = this;
-    	// 获取用户配置
-    	this._initOpts();
+        var me = this;
+        // 获取用户配置
+        this._initOpts();
 
-    	// 初始化折叠，根据元素高度和限制高度判断是否需要折叠
-    	this._initHeight();
+        // 初始化折叠，根据元素高度和限制高度判断是否需要折叠
+        this._initHeight();
 
         // 暴露展开收起事件，供外界调用
         this.addEventAction('toggle', function (event) {
@@ -30,8 +30,10 @@ define(function (require) {
         });
 
         // 兼容手机横竖屏切换时，字数重新排列高度变化情况
-        window.addEventListener('orientationchange', function() {
-        	// TODO 确认使用build还是_initHeight
+        window.addEventListener('orientationchange', function () {
+            me._initHeight();
+        }, false);
+        window.addEventListener('resize', function () {
             me._initHeight();
         }, false);
     };
@@ -49,23 +51,23 @@ define(function (require) {
     /**
      * 获取用户配置, 初始化参数
      */
-    showmoreEle.prototype._initOpts = function() {
-    	var element = this.element;
-    	// 点击按钮
-    	this.button = this.element.querySelector('.mip-custom-showmore-btn');
-    	this.buttonDisplay = getComputedStyle(this.button).display;
-    	// 动画时间
-    	this.animateTime = element.getAttribute('animate-time');
-    	if (this.animateTime === null || isNaN(this.animateTime)) {
+    showmoreEle.prototype._initOpts = function () {
+        var element = this.element;
+        // 点击按钮
+        this.button = this.element.querySelector('.mip-custom-showmore-btn');
+        this.buttonDisplay = getComputedStyle(this.button).display;
+        // 动画时间
+        this.animateTime = element.getAttribute('animate-time');
+        if (this.animateTime === null || isNaN(this.animateTime)) {
             // 默认展开收起动画时间0.24s
             this.animateTime = 0.24;
         }
+
         // 配置收起时底部渐变
         this.bottomShadow = element.getAttribute('bottom-shadow') === '1';
         // 支持配置最大高度
         this.maxHeight = element.getAttribute('max-height');
-        var hash = MIP.hash.get('mipanchor');
-    }
+    };
 
     /**
      * 初始化折叠，根据元素高度和限制高度判断是否需要折叠
@@ -75,36 +77,40 @@ define(function (require) {
         var eleHeight;
         var showmoreEle = this.element;
         if (showmoreEle.style.height && showmoreEle.style.height.match('px')) {
-        	// 处于折叠状态获取真实高度，窗口宽高改变时
+            // 处于折叠状态获取真实高度，窗口宽高改变时
             eleHeight = getHeightUnfold(showmoreEle);
-        } else {
-        	// 初始化，组件处于展开状态
+        }
+        else {
+            // 初始化，组件处于展开状态
             eleHeight = util.rect.getElementOffset(showmoreEle).height;
         }
 
         // 获取折叠元素目标高度
         var viewportHeight = viewport.getHeight();
-        var hash = MIP.hash.get('mipanchor');
+        var hash = window.MIP.hash.get('mipanchor');
         if (hash === 'from-ad') {
-        	// 来自广告页，合作页正文强制0.5屏折叠
-        	this.maxHeight = viewportHeight * 0.5;
-        } else if (!this.maxHeight) {
-        	// 默认1.5屏幕折叠
-        	this.maxHeight = viewportHeight * 1.5;
+            // 来自广告页，合作页正文强制0.5屏折叠
+            this.maxHeight = viewportHeight * 0.5;
         }
+        else if (!this.maxHeight) {
+            // 默认1.5屏幕折叠
+            this.maxHeight = viewportHeight * 1.5;
+        }
+
         // 如果高度大于阈值
         if (eleHeight > this.maxHeight) {
             util.css(showmoreEle, {
-                'height': this.maxHeight + 'px',
-                'overflow': 'hidden'
+                height: this.maxHeight + 'px',
+                overflow: 'hidden'
             });
             // 改变按钮的样式值 - 改为点击可展开
             this.changeBtnStyle('fold');
-        } else {
+        }
+        else {
             // 高度小于阈值，高度自动贴合内容
             util.css(showmoreEle, 'height', 'auto');
             // 改变按钮的样式 - 不需要折叠，隐藏按钮
-            util.css(this.button, 'display' ,'none');
+            util.css(this.button, 'display', 'none');
         }
         // 显示默认隐藏的showmore, 避免初始加载闪现
         util.css(showmoreEle, {
@@ -114,25 +120,26 @@ define(function (require) {
 
     // 改变按钮的样式值 - showmore改为隐藏状态, 按钮为“收起”
     showmoreEle.prototype.changeBtnStyle = function (type) {
-        //选中 showmore 的div
+        // 选中 showmore 的div
         if (type === 'fold') {
-        	// 开始折叠，隐藏内容
-        	// 删除按钮展开class(可自定义样式)
-        	this.button.classList.remove(staticOpt.btnClassWhenUnfold);
+            // 开始折叠，隐藏内容
+            // 删除按钮展开class(可自定义样式)
+            this.button.classList.remove(staticOpt.btnClassWhenUnfold);
             // 增加bottom渐变
             this.element.classList.add(staticOpt.bottomShadowClass);
             // debugger;
             if (!this.button.dataset.tounfoldtext) {
-            	// 初次打开，保存data-tounfoldtext参数
-            	this.button.setAttribute('data-tounfoldtext', this.button.innerHTML);
-            } else {
-            	// 展开收起，修改文字为【展开更多】
-            	this.button.innerHTML = this.button.dataset.tounfoldtext;
-
+                // 初次打开，保存data-tounfoldtext参数
+                this.button.setAttribute('data-tounfoldtext', this.button.innerHTML);
             }
-        } else if ((type === 'unfold')) {
-        	// 开始展开，显示内容操作
-        	// 增加按钮展开class(可自定义样式)
+            else {
+                // 展开收起，修改文字为【展开更多】
+                this.button.innerHTML = this.button.dataset.tounfoldtext;
+            }
+        }
+        else if ((type === 'unfold')) {
+            // 开始展开，显示内容操作
+            // 增加按钮展开class(可自定义样式)
             this.button.classList.add(staticOpt.btnClassWhenUnfold);
             // 处理bottom渐变
             this.element.classList.remove(staticOpt.bottomShadowClass);
@@ -141,11 +148,11 @@ define(function (require) {
             // this.button.setAttribute('data-tofoldtext', this.button.innerHTML);
             this.button.innerHTML = this.button.dataset.tofoldtext;
         }
+
     };
 
     // 高度阈值控制
     showmoreEle.prototype.toggle = function (event) {
-        var me = this;
         var classList = this.element.classList;
         var clickBtn = this.button;
         var opt = {};
@@ -273,7 +280,7 @@ define(function (require) {
      * @param  {Object} dom some dom
      * @return {number}     height
      */
-    function getHeightUnfold (dom) {
+    function getHeightUnfold(dom) {
         var fakeNode = document.createElement('div');
         var style = getComputedStyle(dom);
         fakeNode.innerHTML = dom.innerHTML;
